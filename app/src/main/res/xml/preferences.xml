@@ -1,21 +1,24 @@
 <androidx.preference.PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-
     <PreferenceCategory
-        android:title="Dialogs">
+        android:title="Configurações">
 
-        <Preference
-            android:key="preference_key"
-            android:title="title"
-            android:summary="summary"
-            android:icon="@drawable/ic_camera_alt_black_24dp"
-            app:singleLineTitle="true"
-            />
+        <EditTextPreference
+            android:key="sharedCPF"
+            android:title="CPF"
+            android:summary="Digite o CPF"
+            android:dialogMessage="Digite o CPF"
+            app:useSimpleSummaryProvider="true"
+            android:dialogTitle="CPF"/>
+
+        <EditTextPreference
+            android:key="sharedCelular"
+            android:title="Celular"
+            android:summary="Digite o número do celular"
+            android:dialogMessage="Digite o numero do celular"
+            app:useSimpleSummaryProvider="true"
+            android:dialogTitle="Número do Celular"/>
 
     </PreferenceCategory>
-
-
-
-
 </androidx.preference.PreferenceScreen>

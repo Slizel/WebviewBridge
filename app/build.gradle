@@ -51,4 +51,9 @@ dependencies {
     implementation 'androidx.preference:preference:1.1.0-rc01'
     implementation 'androidx.preference:preference:1.1.0-beta01'
 
+
+    // material dialogs
+    def matieral_dialogs_version = "3.1.1"
+    implementation "com.afollestad.material-dialogs:core:$matieral_dialogs_version"
+
 }

@@ -19,7 +19,6 @@ import android.webkit.WebViewClient
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_web_view.*
-
 import java.net.URLEncoder
 
 
@@ -33,7 +32,8 @@ class WebViewActivity: AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_web_view)
 
-        startLoaderAnimate();
+        startLoaderAnimate()
+        validaSharedPreferences()
 
         webView.settings.javaScriptEnabled = true
         webView.settings.setSupportZoom(false)
@@ -148,11 +148,31 @@ class WebViewActivity: AppCompatActivity() {
 
     //Navega para a activity de preferences
     private fun preferenceActivityCall() {
-        val intent = Intent(this, PreferenceActivity::class.java)
-        //val intent = Intent(this, SettingsActivity::class.java)
+        //val intent = Intent(this, PreferenceActivity::class.java)
+        val intent = Intent(this, SettingsActivity::class.java)
         startActivity(intent)
 
     }
+
+
+    private fun validaSharedPreferences(){
+
+        val myPrefs = getSharedPreferences("faridnet.com.relatodeseguranca_preferences", Context.MODE_PRIVATE)
+        //myPrefs.contains("sharedCPF")
+        //val hasCelular: Boolean = myPrefs.contains("sharedCelular")
+
+        val CPF = myPrefs.getString("sharedCPF", null)
+        val celular = myPrefs.getString("sharedCelular", CPF)
+
+        if (CPF == null || celular == null )
+        {
+            val intent = Intent(this, SettingsActivity::class.java)
+            startActivity(intent)
+        }
+
+    }
+
+
 }
 
 
