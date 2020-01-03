@@ -20,7 +20,7 @@ class SettingsActivity : AppCompatActivity() {
 
         val mDialogView = LayoutInflater.from(this).inflate(R.layout.login_dialog, null)
         //AlertDialogBuilder
-        val mBuilder = AlertDialog.Builder(this)
+        val mBuilder = AlertDialog.Builder(this).setCancelable(false)
             .setView(mDialogView)
             .setTitle("Digite a Senha")
         //show dialog
@@ -38,8 +38,6 @@ class SettingsActivity : AppCompatActivity() {
 
             val senha =  (dia + 20).toString() + (mes + 11).toString()
 
-
-
             //get text from EditTexts of custom layout
             val password = mDialogView.dialogPasswEt.text.toString()
             //set the input text in TextView
@@ -50,12 +48,7 @@ class SettingsActivity : AppCompatActivity() {
             }else{
                 Toast.makeText(this,"Senha Inválida!", Toast.LENGTH_SHORT).show()
             }
-
-
-
         }
-
-
 
         setContentView(R.layout.activity_settings)
 

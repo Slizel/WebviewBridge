@@ -20,5 +20,22 @@
             app:useSimpleSummaryProvider="true"
             android:dialogTitle="Número do Celular"/>
 
+        <EditTextPreference
+            android:key="sharedUNB"
+            android:title="UNB"
+            android:summary="Digite o número do celular"
+            android:dialogMessage="Digite o numero do celular"
+            app:useSimpleSummaryProvider="true"
+            android:dialogTitle="Número do Celular"/>
+
+
+        <EditTextPreference
+            android:key="sharedIMEI"
+            android:title="IMEI"
+            android:summary="Digite o número do celular"
+            android:dialogMessage="Digite o numero do celular"
+            app:useSimpleSummaryProvider="true"
+            android:dialogTitle="Número do Celular"/>
+
     </PreferenceCategory>
 </androidx.preference.PreferenceScreen>
