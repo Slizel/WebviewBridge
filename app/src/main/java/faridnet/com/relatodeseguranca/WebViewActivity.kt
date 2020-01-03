@@ -1,15 +1,18 @@
 package faridnet.com.relatodeseguranca
 
+import android.Manifest
 import android.animation.ValueAnimator
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.os.Parcelable
 import android.provider.MediaStore
+import android.telephony.TelephonyManager
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -21,7 +24,10 @@ import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_web_view.*
 import java.io.File
 import java.io.IOException
@@ -30,6 +36,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class WebViewActivity : AppCompatActivity() {
+
 
     private val urlAPI = "http://gestao.faridnet.com.br/RelatoSeguranca/Relato"
     val urlLogin = "http://gestao.faridnet.com.br/Account/Login"
@@ -46,6 +53,7 @@ class WebViewActivity : AppCompatActivity() {
     private var mFilePathCallback: ValueCallback<Array<Uri>>? = null
     private var mUploadMessage: ValueCallback<Uri>? = null
     private var mCapturedImageURI: Uri? = null
+    private var mIMEI: String? = null
 
     companion object {
         private const val INPUT_FILE_REQUEST_CODE = 1
@@ -58,12 +66,16 @@ class WebViewActivity : AppCompatActivity() {
                     "AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/72.0.3626.121 " //+ "Mobile Safari/537.36 YandexSearch/8.05 YandexSearchBrowser/8.05"
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_web_view)
 
         startLoaderAnimate()
         validaSharedPreferences()
+        mIMEI = getIMEI()
+
+
 
         webView.settings.javaScriptEnabled = true
         webView.settings.allowFileAccessFromFileURLs = true
@@ -194,6 +206,7 @@ class WebViewActivity : AppCompatActivity() {
         endLoaderAnimate()
     }
 
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             if (requestCode != INPUT_FILE_REQUEST_CODE || mFilePathCallback == null) {
@@ -314,7 +327,7 @@ class WebViewActivity : AppCompatActivity() {
 
     private fun validaSharedPreferences() {
         loadSharedPreferences()
-        if (sharedCPF == "" || sharedCelular == "" || sharedUNB == "" || sharedIMEI == "") {
+        if (sharedCelular == "" || sharedUNB == "") {
             val intent = Intent(this, SettingsActivity::class.java)
             startActivity(intent)
         }
@@ -335,5 +348,40 @@ class WebViewActivity : AppCompatActivity() {
             currentPhotoPath = absolutePath
         }
     }
+
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun getIMEI(): String {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.READ_PHONE_STATE
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(
+                    this,
+                    Manifest.permission.READ_PHONE_STATE
+                )
+            ) {
+            } else {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.READ_PHONE_STATE),
+                    2
+                )
+            }
+
+        }
+
+        try {
+            val tm = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+
+            return tm.imei
+        } catch (ex: Exception) {
+            Log.e("", ex.message)
+            return ""
+        }
+    }
+
+
 }
 

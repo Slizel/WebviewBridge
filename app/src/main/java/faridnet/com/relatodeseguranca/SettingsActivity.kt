@@ -1,12 +1,17 @@
 package faridnet.com.relatodeseguranca
 
+
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+
+
 import android.view.LayoutInflater
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.login_dialog.view.*
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -56,5 +61,10 @@ class SettingsActivity : AppCompatActivity() {
             .beginTransaction()
             .replace(R.id.settings_container2, SettingsFragment())
             .commit()
+
+
     }
+
+
+
 }

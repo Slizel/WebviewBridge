@@ -5,37 +5,20 @@
         android:title="Configurações">
 
         <EditTextPreference
-            android:key="sharedCPF"
-            android:title="CPF"
-            android:summary="Digite o CPF"
-            android:dialogMessage="Digite o CPF"
-            app:useSimpleSummaryProvider="true"
-            android:dialogTitle="CPF"/>
-
-        <EditTextPreference
             android:key="sharedCelular"
-            android:title="Celular"
-            android:summary="Digite o número do celular"
-            android:dialogMessage="Digite o numero do celular"
+            android:title="Número da Linha"
+            android:summary="Digite o número da linha"
+            android:dialogMessage="Digite o número da Linha"
             app:useSimpleSummaryProvider="true"
-            android:dialogTitle="Número do Celular"/>
+            android:dialogTitle="Número da Linha"/>
 
         <EditTextPreference
             android:key="sharedUNB"
             android:title="UNB"
-            android:summary="Digite o número do celular"
-            android:dialogMessage="Digite o numero do celular"
+            android:summary="Digite o número do UNB"
+            android:dialogMessage="Digite o número do UNB"
             app:useSimpleSummaryProvider="true"
-            android:dialogTitle="Número do Celular"/>
-
-
-        <EditTextPreference
-            android:key="sharedIMEI"
-            android:title="IMEI"
-            android:summary="Digite o número do celular"
-            android:dialogMessage="Digite o numero do celular"
-            app:useSimpleSummaryProvider="true"
-            android:dialogTitle="Número do Celular"/>
+            android:dialogTitle="Número do UNB"/>
 
     </PreferenceCategory>
 </androidx.preference.PreferenceScreen>
