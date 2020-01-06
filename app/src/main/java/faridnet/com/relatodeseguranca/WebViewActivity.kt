@@ -2,10 +2,12 @@ package faridnet.com.relatodeseguranca
 
 import android.Manifest
 import android.animation.ValueAnimator
+import android.annotation.TargetApi
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -14,15 +16,13 @@ import android.os.Parcelable
 import android.provider.MediaStore
 import android.telephony.TelephonyManager
 import android.util.Log
+import android.util.Xml
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.Transformation
-import android.webkit.ValueCallback
-import android.webkit.WebChromeClient
-import android.webkit.WebView
-import android.webkit.WebViewClient
+import android.webkit.*
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -34,9 +34,9 @@ import java.io.IOException
 import java.net.URLEncoder
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.HashMap
 
 class WebViewActivity : AppCompatActivity() {
-
 
     private val urlAPI = "http://gestao.faridnet.com.br/RelatoSeguranca/Relato"
     val urlLogin = "http://gestao.faridnet.com.br/Account/Login"
@@ -50,17 +50,19 @@ class WebViewActivity : AppCompatActivity() {
     var currentPhotoPath: String = ""
     var mCameraPhotoPath = ""
 
+
     private var mFilePathCallback: ValueCallback<Array<Uri>>? = null
     private var mUploadMessage: ValueCallback<Uri>? = null
     private var mCapturedImageURI: Uri? = null
-    private var mIMEI: String? = null
+
+    //val hashMap:HashMap<Int,String> = HashMap<Int,String>()
+    val header: HashMap<String, String> = HashMap<String, String>()
 
     companion object {
         private const val INPUT_FILE_REQUEST_CODE = 1
         private const val FILECHOOSER_RESULTCODE = 1
         private val TAG = WebViewActivity::class.java.simpleName
 
-        private const val loadUrl = "https://yandex.ru/aura/"
         private const val userAgent =
             "Mozilla/5.0 (Linux; Android 9; Mi A2 Build/PKQ1.180904.001; wv) " +
                     "AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/72.0.3626.121 " //+ "Mobile Safari/537.36 YandexSearch/8.05 YandexSearchBrowser/8.05"
@@ -72,10 +74,9 @@ class WebViewActivity : AppCompatActivity() {
         setContentView(R.layout.activity_web_view)
 
         startLoaderAnimate()
+
         validaSharedPreferences()
-        mIMEI = getIMEI()
-
-
+        sharedIMEI = getIMEI()
 
         webView.settings.javaScriptEnabled = true
         webView.settings.allowFileAccessFromFileURLs = true
@@ -84,10 +85,42 @@ class WebViewActivity : AppCompatActivity() {
         webView.settings.allowFileAccess = true
         webView.settings.loadsImagesAutomatically = true
         webView.settings.setAppCacheEnabled(true)
+        webView.settings.useWideViewPort = true
+        webView.settings.databaseEnabled = true
+        webView.clearHistory()
+        webView.clearFormData()
+        webView.clearCache(true)
+        webView.settings.setCacheMode(WebSettings.LOAD_NO_CACHE)
         webView.settings.userAgentString = userAgent
+        val username = "relatoseguranca"
+        val password = "Relato2020"
+        val postData: String =
+            "username=" + URLEncoder.encode(username, "UTF-8") + "&password=" + URLEncoder.encode(
+                password,
+                "UTF-8"
+            )
+
+        header["Cache-Control"] = "private"
+        header["Content-Type"] = "application/json; charset=utf-8"
 
         webView.webViewClient = object : WebViewClient() {
+
+            override fun onPageFinished(view: WebView?, url: String?) {
+                endLoaderAnimate()
+
+                if (url != null) {
+                    if (url.equals(urlLogin, true)) {
+                        webView.loadUrl(
+                            urlAPI + "?&Mobile=1&Linha=$sharedCelular&UNB=$sharedUNB&IMEI=$sharedIMEI#new",
+                            header
+                        )
+                    }
+                }
+
+            }
         }
+
+
         webView.webChromeClient = object : WebChromeClient() {
 
             override fun onShowFileChooser(
@@ -191,19 +224,15 @@ class WebViewActivity : AppCompatActivity() {
             }
         }
 
-        val username = "admin"
-        val password = "farid@2004"
-        var postData =
-            "username=" + URLEncoder.encode(username, "UTF-8") + "&password=" + URLEncoder.encode(
-                password,
-                "UTF-8"
-            )
+        webView.loadUrl(urlLogout, header)
+        webView.postUrl(
+            urlLogin,
+            postData.toByteArray()
+        )
 
-        webView.loadUrl(urlLogout)
-        webView.postUrl(urlLogin, postData.toByteArray())
-        webView.loadUrl(urlAPI + "?&Mobile=1&Linha=$sharedCelular&CPF=$sharedCPF&UNB=$sharedUNB&IMEI=$sharedIMEI#new")
 
-        endLoaderAnimate()
+        //Toast.makeText(this@WebViewActivity, webView.url.toString(), Toast.LENGTH_SHORT).show()
+
     }
 
 
@@ -259,7 +288,6 @@ class WebViewActivity : AppCompatActivity() {
             }
         }
         return
-
     }
 
     private fun loadSharedPreferences() {
@@ -306,7 +334,6 @@ class WebViewActivity : AppCompatActivity() {
         super.onCreateOptionsMenu(menu)
         menuInflater.inflate(R.menu.menu, menu)
         return true
-
     }
 
     //Listener do menu
@@ -314,7 +341,6 @@ class WebViewActivity : AppCompatActivity() {
         if (item.itemId == R.id.action_preference) {
             preferenceActivityCall()
         }
-
         return true
     }
 
@@ -349,7 +375,6 @@ class WebViewActivity : AppCompatActivity() {
         }
     }
 
-
     @RequiresApi(Build.VERSION_CODES.O)
     private fun getIMEI(): String {
         if (ContextCompat.checkSelfPermission(
@@ -369,7 +394,6 @@ class WebViewActivity : AppCompatActivity() {
                     2
                 )
             }
-
         }
 
         try {
@@ -381,7 +405,4 @@ class WebViewActivity : AppCompatActivity() {
             return ""
         }
     }
-
-
 }
-
