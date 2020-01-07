@@ -47,4 +47,14 @@
     <string name="cpf">CPF</string>
     <string name="carregar">Carregar</string>
     <string name="limpar">Limpar</string>
+
+
+    <string name="text_error">Erro</string>
+    <string name="text_success">Sucesso</string>
+    <string name="text_ok">OK</string>
+    <string name="text_cancel">Não</string>
+    <string name="are_you_sure">Deseja Continuar?</string>
+    <string name="text_yes">Sim</string>
+
+
 </resources>

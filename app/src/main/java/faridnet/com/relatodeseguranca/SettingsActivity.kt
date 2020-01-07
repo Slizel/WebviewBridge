@@ -53,7 +53,7 @@ class SettingsActivity : AppCompatActivity() {
 
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.settings_container2, SettingsFragment())
+            .replace(R.id.settings_container, SettingsFragment())
             .commit()
 
     }

@@ -2,7 +2,6 @@ package faridnet.com.relatodeseguranca
 
 import android.Manifest
 import android.animation.ValueAnimator
-import android.annotation.TargetApi
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -16,7 +15,6 @@ import android.os.Parcelable
 import android.provider.MediaStore
 import android.telephony.TelephonyManager
 import android.util.Log
-import android.util.Xml
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -28,6 +26,7 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.afollestad.materialdialogs.MaterialDialog
 import kotlinx.android.synthetic.main.activity_web_view.*
 import java.io.File
 import java.io.IOException
@@ -38,7 +37,7 @@ import kotlin.collections.HashMap
 
 class WebViewActivity : AppCompatActivity() {
 
-    private val urlAPI = "http://gestao.faridnet.com.br/RelatoSeguranca/Relato"
+    private val urlAPI = "http://gestao.faridnet.com.br/RelatoSeguranca/Relato?&Mobile=1"
     val urlLogin = "http://gestao.faridnet.com.br/Account/Login"
     val urlLogout = "http://gestao.faridnet.com.br/Account/Signout"
 
@@ -50,12 +49,10 @@ class WebViewActivity : AppCompatActivity() {
     var currentPhotoPath: String = ""
     var mCameraPhotoPath = ""
 
-
     private var mFilePathCallback: ValueCallback<Array<Uri>>? = null
     private var mUploadMessage: ValueCallback<Uri>? = null
     private var mCapturedImageURI: Uri? = null
 
-    //val hashMap:HashMap<Int,String> = HashMap<Int,String>()
     val header: HashMap<String, String> = HashMap<String, String>()
 
     companion object {
@@ -74,7 +71,6 @@ class WebViewActivity : AppCompatActivity() {
         setContentView(R.layout.activity_web_view)
 
         startLoaderAnimate()
-
         validaSharedPreferences()
         sharedIMEI = getIMEI()
 
@@ -105,21 +101,28 @@ class WebViewActivity : AppCompatActivity() {
 
         webView.webViewClient = object : WebViewClient() {
 
+            override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+                super.onPageStarted(view, url, favicon)
+                startLoaderAnimate()
+            }
+
             override fun onPageFinished(view: WebView?, url: String?) {
-                endLoaderAnimate()
+                super.onPageFinished(view, url)
 
                 if (url != null) {
                     if (url.equals(urlLogin, true)) {
+
                         webView.loadUrl(
-                            urlAPI + "?&Mobile=1&Linha=$sharedCelular&UNB=$sharedUNB&IMEI=$sharedIMEI#new",
+                            urlAPI + "&Linha=$sharedCelular&Unb=$sharedUNB&Imei=$sharedIMEI",
                             header
                         )
+                    } else if (url.equals(urlAPI + "&Linha=$sharedCelular&Unb=$sharedUNB&Imei=$sharedIMEI")) {
+                        endLoaderAnimate()
                     }
                 }
 
             }
         }
-
 
         webView.webChromeClient = object : WebChromeClient() {
 
@@ -230,11 +233,7 @@ class WebViewActivity : AppCompatActivity() {
             postData.toByteArray()
         )
 
-
-        //Toast.makeText(this@WebViewActivity, webView.url.toString(), Toast.LENGTH_SHORT).show()
-
     }
-
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -303,9 +302,11 @@ class WebViewActivity : AppCompatActivity() {
     private fun endLoaderAnimate() {
         loaderImage.clearAnimation()
         loaderImage.visibility = View.GONE
+        webView.visibility = View.VISIBLE
     }
 
     private fun startLoaderAnimate() {
+        webView.visibility = View.GONE
         val objectAnimator = object : Animation() {
             override fun applyTransformation(interpolatedTime: Float, t: Transformation?) {
                 val startHeight = 170
@@ -322,10 +323,9 @@ class WebViewActivity : AppCompatActivity() {
                 return true
             }
         }
-
         objectAnimator.repeatCount = -1
         objectAnimator.repeatMode = ValueAnimator.REVERSE
-        objectAnimator.duration = 1000
+        objectAnimator.duration = 800
         loaderImage.startAnimation(objectAnimator)
     }
 
@@ -338,14 +338,43 @@ class WebViewActivity : AppCompatActivity() {
 
     //Listener do menu
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.action_preference) {
-            preferenceActivityCall()
+        when (item.itemId) {
+            R.id.action_preference -> preferenceActivityCall()
+            R.id.action_add -> webView.loadUrl(
+                urlAPI + "&Linha=$sharedCelular&Unb=$sharedUNB&Imei=$sharedIMEI#new",
+                header
+            )
+            R.id.action_list -> webView.loadUrl(
+                urlAPI + "&Linha=$sharedCelular&Unb=$sharedUNB&Imei=$sharedIMEI",
+                header
+            )
         }
+
         return true
     }
 
     //Navega para a activity de preferences
     private fun preferenceActivityCall() {
+
+        val areYouSureCallback = object: AreYouSureCallback {
+            override fun proceed() {
+               // displayToast("Peça a senha ligando para: 31 3562-3254")
+                preferenceActivityintent()
+            }
+
+            override fun cancel() {
+                displayToast("Ação cancelada!")
+            }
+        }
+        areYouSureDialog(
+            "Você tem certeza que deseja alterar a configuração do App?",
+            areYouSureCallback
+        )
+
+    }
+
+    fun preferenceActivityintent (){
+
         //val intent = Intent(this, PreferenceActivity::class.java)
         val intent = Intent(this, SettingsActivity::class.java)
         startActivity(intent)
@@ -405,4 +434,32 @@ class WebViewActivity : AppCompatActivity() {
             return ""
         }
     }
+
+
+    fun displayToast(message:String?){
+        Toast.makeText(this,message, Toast.LENGTH_SHORT).show()
+    }
+
+
+    fun areYouSureDialog(message: String, callback: AreYouSureCallback){
+        MaterialDialog(this)
+            .show{
+                title(R.string.are_you_sure)
+                message(text = message)
+                negativeButton(R.string.text_cancel){
+                    callback.cancel()
+                }
+                positiveButton(R.string.text_yes){
+                    callback.proceed()
+                }
+            }
+    }
+
+    interface AreYouSureCallback {
+
+        fun proceed()
+
+        fun cancel()
+    }
+
 }
