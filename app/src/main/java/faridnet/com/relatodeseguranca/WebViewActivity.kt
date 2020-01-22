@@ -21,17 +21,22 @@ import android.view.View
 import android.view.animation.Animation
 import android.view.animation.Transformation
 import android.webkit.*
+import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import com.afollestad.materialdialogs.MaterialDialog
 import kotlinx.android.synthetic.main.activity_web_view.*
+import pub.devrel.easypermissions.EasyPermissions
 import java.io.File
 import java.io.IOException
 import java.net.URLEncoder
 import java.text.SimpleDateFormat
+import java.time.Duration
+import java.time.LocalDateTime
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -53,6 +58,9 @@ class WebViewActivity : AppCompatActivity() {
     private var mUploadMessage: ValueCallback<Uri>? = null
     private var mCapturedImageURI: Uri? = null
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    private var mTempoBackground: LocalDateTime? = LocalDateTime.now()
+
     val header: HashMap<String, String> = HashMap<String, String>()
 
     companion object {
@@ -68,6 +76,7 @@ class WebViewActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        mTempoBackground = LocalDateTime.now()
         setContentView(R.layout.activity_web_view)
 
         startLoaderAnimate()
@@ -118,7 +127,11 @@ class WebViewActivity : AppCompatActivity() {
                         )
                     } else if (url.equals(urlAPI + "&Linha=$sharedCelular&Unb=$sharedUNB&Imei=$sharedIMEI")) {
                         endLoaderAnimate()
+                    }else{
+
+                        endLoaderAnimate()
                     }
+
                 }
 
             }
@@ -440,7 +453,6 @@ class WebViewActivity : AppCompatActivity() {
         Toast.makeText(this,message, Toast.LENGTH_SHORT).show()
     }
 
-
     fun areYouSureDialog(message: String, callback: AreYouSureCallback){
         MaterialDialog(this)
             .show{
@@ -454,6 +466,37 @@ class WebViewActivity : AppCompatActivity() {
                 }
             }
     }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onPause() {
+        super.onPause()
+        mTempoBackground = LocalDateTime.now()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onStop() {
+        super.onStop()
+        mTempoBackground = LocalDateTime.now()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onStart() {
+        super.onStart()
+
+        if (Duration.between(mTempoBackground, LocalDateTime.now()).seconds > 90 ){
+
+            onCreate(null)
+        }
+    }
+    @RequiresApi(Build.VERSION_CODES.O)
+        override fun onResume() {
+            super.onResume()
+            if (Duration.between(mTempoBackground, LocalDateTime.now()).seconds > 90) {
+
+                onCreate(null)
+            }
+        }
+
 
     interface AreYouSureCallback {
 

@@ -46,7 +46,6 @@ dependencies {
     //Circle imageview
     implementation 'de.hdodenhof:circleimageview:3.0.1'
 
-
     implementation 'androidx.preference:preference:1.1.0-alpha04'
     implementation 'androidx.preference:preference:1.1.0-rc01'
     implementation 'androidx.preference:preference:1.1.0-beta01'
@@ -54,5 +53,8 @@ dependencies {
     // material dialogs
     def matieral_dialogs_version = "3.1.1"
     implementation "com.afollestad.material-dialogs:core:$matieral_dialogs_version"
+
+    // For developers using the Android Support Library
+    implementation 'pub.devrel:easypermissions:2.0.1'
 
 }
