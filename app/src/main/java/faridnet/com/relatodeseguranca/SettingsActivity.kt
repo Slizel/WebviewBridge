@@ -1,19 +1,18 @@
 package faridnet.com.relatodeseguranca
 
-import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.login_dialog.view.*
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.*
 
 class SettingsActivity : AppCompatActivity() {
 
-    @RequiresApi(Build.VERSION_CODES.O)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -28,12 +27,17 @@ class SettingsActivity : AppCompatActivity() {
         mDialogView.dialogLoginBtn.setOnClickListener {
             //dismiss dialog
 
-            val current = LocalDateTime.now()
-            var formatter = DateTimeFormatter.ofPattern("MM")
+            val calander: Calendar = Calendar.getInstance()
+            var dia = calander.get(Calendar.DAY_OF_MONTH)
+            var mes = calander.get(Calendar.MONTH) + 1
 
-            val mes = current.format(formatter).toInt()
-            formatter = DateTimeFormatter.ofPattern("dd")
-            val dia = current.format(formatter).toInt()
+              // For API 26 or higher
+//            val current = LocalDateTime.now()
+//            var formatter = DateTimeFormatter.ofPattern("MM")
+//
+//            val mes = current.format(formatter).toInt()
+//            formatter = DateTimeFormatter.ofPattern("dd")
+//            val dia = current.format(formatter).toInt()
 
             val senha = (dia + 20).toString() + (mes + 11).toString()
 

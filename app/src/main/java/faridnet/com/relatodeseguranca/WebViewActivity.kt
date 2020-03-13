@@ -2,6 +2,7 @@ package faridnet.com.relatodeseguranca
 
 import android.Manifest
 import android.animation.ValueAnimator
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -21,23 +22,18 @@ import android.view.View
 import android.view.animation.Animation
 import android.view.animation.Transformation
 import android.webkit.*
-import android.widget.TextView
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
 import com.afollestad.materialdialogs.MaterialDialog
 import kotlinx.android.synthetic.main.activity_web_view.*
-import pub.devrel.easypermissions.EasyPermissions
 import java.io.File
 import java.io.IOException
 import java.net.URLEncoder
 import java.text.SimpleDateFormat
-import java.time.Duration
-import java.time.LocalDateTime
 import java.util.*
+import java.util.concurrent.TimeUnit
 import kotlin.collections.HashMap
 
 class WebViewActivity : AppCompatActivity() {
@@ -58,8 +54,8 @@ class WebViewActivity : AppCompatActivity() {
     private var mUploadMessage: ValueCallback<Uri>? = null
     private var mCapturedImageURI: Uri? = null
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    private var mTempoBackground: LocalDateTime? = LocalDateTime.now()
+
+    private var mTempoBackground: Long = Calendar.getInstance().timeInMillis
 
     val header: HashMap<String, String> = HashMap<String, String>()
 
@@ -73,10 +69,10 @@ class WebViewActivity : AppCompatActivity() {
                     "AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/72.0.3626.121 " //+ "Mobile Safari/537.36 YandexSearch/8.05 YandexSearchBrowser/8.05"
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mTempoBackground = LocalDateTime.now()
+        mTempoBackground = Calendar.getInstance().timeInMillis
         setContentView(R.layout.activity_web_view)
 
         startLoaderAnimate()
@@ -95,7 +91,7 @@ class WebViewActivity : AppCompatActivity() {
         webView.clearHistory()
         webView.clearFormData()
         webView.clearCache(true)
-        webView.settings.setCacheMode(WebSettings.LOAD_NO_CACHE)
+        webView.settings.cacheMode = WebSettings.LOAD_NO_CACHE
         webView.settings.userAgentString = userAgent
         val username = "relatoseguranca"
         val password = "Relato2020"
@@ -417,7 +413,8 @@ class WebViewActivity : AppCompatActivity() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+
+    @SuppressLint("HardwareIds")
     private fun getIMEI(): String {
         if (ContextCompat.checkSelfPermission(
                 this,
@@ -439,15 +436,18 @@ class WebViewActivity : AppCompatActivity() {
         }
 
         try {
-            val tm = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
 
-            return tm.imei
+            val mngr = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+            return mngr.deviceId
+
+            //val tm = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+            //return tm.imei
+
         } catch (ex: Exception) {
             Log.e("", ex.message)
             return ""
         }
     }
-
 
     fun displayToast(message:String?){
         Toast.makeText(this,message, Toast.LENGTH_SHORT).show()
@@ -467,36 +467,35 @@ class WebViewActivity : AppCompatActivity() {
             }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+
     override fun onPause() {
         super.onPause()
-        mTempoBackground = LocalDateTime.now()
+        mTempoBackground = Calendar.getInstance().timeInMillis
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+
     override fun onStop() {
         super.onStop()
-        mTempoBackground = LocalDateTime.now()
+        mTempoBackground = Calendar.getInstance().timeInMillis
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+
     override fun onStart() {
         super.onStart()
-
-        if (Duration.between(mTempoBackground, LocalDateTime.now()).seconds > 90 ){
-
+        val diffInMs: Long = Calendar.getInstance().timeInMillis - mTempoBackground
+        if(TimeUnit.MILLISECONDS.toSeconds(diffInMs) > 90){
             onCreate(null)
         }
+
     }
-    @RequiresApi(Build.VERSION_CODES.O)
+
         override fun onResume() {
             super.onResume()
-            if (Duration.between(mTempoBackground, LocalDateTime.now()).seconds > 90) {
-
+            val diffInMs: Long = Calendar.getInstance().timeInMillis - mTempoBackground
+            if(TimeUnit.MILLISECONDS.toSeconds(diffInMs) > 90){
                 onCreate(null)
             }
         }
-
 
     interface AreYouSureCallback {
 
@@ -504,5 +503,4 @@ class WebViewActivity : AppCompatActivity() {
 
         fun cancel()
     }
-
 }
